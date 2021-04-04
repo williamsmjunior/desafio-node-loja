@@ -8,7 +8,7 @@ var permissions = require("../lib/permissions");
 var chai = require("chai");
 var expect = chai.expect;
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000'
+const baseURL = process.env.BASE_URL || 'http://localhost:3000/api/v1'
 
 var api = axios.create({
     baseURL : baseURL
@@ -22,14 +22,14 @@ describe("user-api", function(){
             username : "admin",
             password : "password#123"
         };
-        let response = await api.post("/auth", credentials);
+        let response = await api.post("/user/auth", credentials);
         expect(response.status).to.be.equal(200);
         let adminToken = response.data.token;
         adminHeaders.authorization = `Bearer ${adminToken}`;
     });
     
     let user;
-    describe("POST /", function(){
+    describe("POST /user", function(){
         it("Should create some user with permissions", async function(){
             user = {
                 username : `user-${Date.now()}`,
@@ -37,7 +37,7 @@ describe("user-api", function(){
                 permissions : [permissions.MANAGE_PRODUCTS]
             }
 
-            let response = await api.post("/", user, {headers:adminHeaders});
+            let response = await api.post("/user/", user, {headers:adminHeaders});
             expect(response.status).to.be.equals(201);
             
             let createdUser = response.data;
@@ -52,13 +52,13 @@ describe("user-api", function(){
         });
     });
 
-    describe("POST /auth", function(){
+    describe("POST /user/auth", function(){
         it("Should return the user token", async function(){
             let credentials = {
                 username : user.username,
                 password : user.password
             };
-            let response = await api.post("/auth", credentials);
+            let response = await api.post("/user/auth", credentials);
             expect(response.status).to.be.equal(200);
             expect(response.data).have.key("token");
         });

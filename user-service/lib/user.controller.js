@@ -66,7 +66,7 @@ function hasPermission(requiredPermission){
  * Create an user with(out) permissions<br>
  * The
  * @name CreateUser
- * @route {POST} /
+ * @route {POST} /api/v1/user
  * @bodyparam {string} username the user name
  * @bodyparam {string} password the user password
  * @bodyparam {array} permissions the array with user permissions
@@ -83,7 +83,7 @@ router.post("/", authenticated, hasPermission(permissions.ADMIN), async function
 /**
  * Returns the user auth JWT token
  * @name Auth
- * @route {POST} /auth
+ * @route {POST} /api/v1/user/auth
  * @bodyparam {string} username the user name
  * @bodyparam {string} password the user password
  */

@@ -8,13 +8,13 @@ var permissions = require("../lib/permissions");
 var chai = require("chai");
 var expect = chai.expect;
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3001'
 
-const userBaseURL = process.env.USER_BASE_URL || 'http://localhost:3000'
+const userBaseURL = process.env.USER_BASE_URL || 'http://localhost:3000/api/v1'
 var userApi = axios.create({
     baseURL : userBaseURL
 });
 
+const baseURL = process.env.BASE_URL || 'http://localhost:3001/api/v1'
 var api = axios.create({
     baseURL : baseURL
 });
@@ -27,7 +27,7 @@ before(async function(){
         username : "admin",
         password : "password#123"
     };
-    let response = await userApi.post("/auth", credentials);
+    let response = await userApi.post("/user/auth", credentials);
     expect(response.status).to.be.equal(200);
     
     let adminToken = response.data.token;
@@ -37,7 +37,7 @@ before(async function(){
 
 describe("product-api", function(){
     let products = [];
-    describe("POST /", function(){
+    describe("POST /product", function(){
         it("Should not accept unauthenticated users", async function(){
             let product = {
                 name: "Some Box",
@@ -48,7 +48,7 @@ describe("product-api", function(){
 
             let response;
             try{
-                response = await api.post("/", product);
+                response = await api.post("/product", product);
                 expect(response.status).to.be.equals(401);
             } catch(e){
                 expect(e.response.status).to.be.equals(401);
@@ -65,7 +65,7 @@ describe("product-api", function(){
 
             let response;
             try{
-                response = await api.post("/", product, {headers: userHeaders});
+                response = await api.post("/product", product, {headers: userHeaders});
             } catch(e){
                 expect(e.response.status).to.be.equals(201);
             }
@@ -85,9 +85,9 @@ describe("product-api", function(){
                 username: `user-${Date.now()}`,
                 password : "password#123"
             };
-            await userApi.post("/", user, {headers: userHeaders});
+            await userApi.post("/user", user, {headers: userHeaders});
 
-            let loginResponse = await userApi.post("/auth", user);
+            let loginResponse = await userApi.post("/user/auth", user);
             let newUserHeaders ={
                 authorization : `Bearer ${loginResponse.data.token}`
             }
@@ -101,7 +101,7 @@ describe("product-api", function(){
 
             let response;
             try{
-                response = await api.post("/", product, {headers: newUserHeaders});
+                response = await api.post("/product", product, {headers: newUserHeaders});
                 expect(response.status).to.be.equals(403);
             } catch(e){
                 expect(e.response.status).to.be.equals(403);
@@ -109,10 +109,10 @@ describe("product-api", function(){
         });
     });
 
-    describe("GET /", function(){
+    describe("GET /product", function(){
 
         before(async function(){
-            this.timeout = 20000;
+            this.timeout(20000);
             for(let i = 0; i < 100; i++){
                 let product = {
                     name: `Some Box v4${i}`,
@@ -123,7 +123,7 @@ describe("product-api", function(){
     
                 let response;
                 try{
-                    response = await api.post("/", product, {headers: userHeaders});
+                    response = await api.post("/product", product, {headers: userHeaders});
                 } catch(e){
                     expect(e.response.status).to.be.equals(201);
                 }
@@ -138,7 +138,7 @@ describe("product-api", function(){
         it("Should return 20 products when get without params", async function(){
             let response;
             try{
-                response = await api.get("/");
+                response = await api.get("/product");
             } catch(e){
                 console.log(e.response.data);
                 expect(e.response.status).to.be.equals(200);
@@ -155,7 +155,7 @@ describe("product-api", function(){
         it("Should paginate properly", async function(){
             let response;
             try{
-                response = await api.get("/?skip=5&limit=30");
+                response = await api.get("/product?skip=5&limit=30");
             } catch(e){
                 console.log(e.response.data);
                 expect(e.response.status).to.be.equals(200);
@@ -172,7 +172,7 @@ describe("product-api", function(){
         it("should filter (search) products properly", async function(){
             let response;
             try{
-                response = await api.get("/?q=44");
+                response = await api.get("/product?q=44");
             } catch(e){
                 console.log(e.response.data);
                 expect(e.response.status).to.be.equals(200);
@@ -189,12 +189,12 @@ describe("product-api", function(){
         });
     });
 
-    describe("GET /:id", function(){
+    describe("GET /product/:id", function(){
         it("Should return the product properly", async function(){
             let selected = products[3];
             let response;
             try{
-                response = await api.get(`/${selected._id}`);
+                response = await api.get(`/product/${selected._id}`);
             } catch(e){
                 expect(e.response.status).to.be.equals(200);
             }
@@ -203,14 +203,14 @@ describe("product-api", function(){
         });
     });
 
-    describe("UPDATE /:id", function(){
+    describe("UPDATE /product/:id", function(){
         it("Should return the product properly", async function(){
             let selected = products[3];
             selected.name += "n-EDITED";
             selected.description += "EDITED";
             let response;
             try{
-                response = await api.put(`/${selected._id}`, selected, {headers:userHeaders});
+                response = await api.put(`/product/${selected._id}`, selected, {headers:userHeaders});
             } catch(e){
                 expect(e.response.status).to.be.equals(200);
             }
@@ -229,7 +229,7 @@ describe("product-api", function(){
             }
             let response;
             try{
-                response = await api.put(`/${selected._id}`, newProduct);
+                response = await api.put(`/product/${selected._id}`, newProduct);
             } catch(e){
                 expect(e.response.status).to.be.equals(401);
             }
@@ -237,7 +237,7 @@ describe("product-api", function(){
 
             //Verify that the product was not modified
             try{
-                response = await api.get(`/${selected._id}`);
+                response = await api.get(`/product/${selected._id}`);
             } catch(e){
                 expect(e.response.status).to.be.equals(200);
             }
@@ -246,11 +246,11 @@ describe("product-api", function(){
         });
     });
 
-    describe("DELETE /:id", function(){
+    describe("DELETE /product/:id", function(){
         it("should not allow to delete if the user is not authorized", async function(){
             let response;
             try{
-                response = await api.delete(`/${products[0]._id}`);
+                response = await api.delete(`/product/${products[0]._id}`);
             } catch(e){
                 expect(e.response.status).to.be.equals(401);
             }
@@ -260,7 +260,7 @@ describe("product-api", function(){
         it("should delete if the user is authorized", async function(){
             let response;
             try{
-                response = await api.delete(`/${products[0]._id}`, {headers:userHeaders});
+                response = await api.delete(`/product/${products[0]._id}`, {headers:userHeaders});
             } catch(e){
                 expect(e.response.status).to.be.equals(200);
             }
@@ -270,7 +270,7 @@ describe("product-api", function(){
         it("should return 404 if product does not exits", async function(){
             let response;
             try{
-                response = await api.delete(`/${products[0]._id}`, {headers:userHeaders});
+                response = await api.delete(`/product/${products[0]._id}`, {headers:userHeaders});
             } catch(e){
                 expect(e.response.status).to.be.equals(404);
             }
@@ -279,10 +279,10 @@ describe("product-api", function(){
     });
 
     after(async function(){
-        this.timeout = 20000;
+        this.timeout(20000);
         for(let product of products){
             try{
-                await api.delete(`/${product._id}`, {headers:userHeaders});
+                await api.delete(`/product/${product._id}`, {headers:userHeaders});
             } catch(e){
             }
         }

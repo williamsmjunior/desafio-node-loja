@@ -65,7 +65,7 @@ function hasPermission(requiredPermission){
 
 /**
  * @name CreateProduct
- * @route {POST} /
+ * @route {POST} /api/v1/product
  * @headerparam {string} authorization the authorization header verified by authenticated
  * @bodyparam {string} name the product name
  * @bodyparam {string} [description] the product description
@@ -83,7 +83,7 @@ router.post("/", authenticated, hasPermission(permissions.MANAGE_PRODUCTS), asyn
 
 /**
  * @name EditProduct
- * @route {PUT} /
+ * @route {PUT} /api/v1/product/:id
  * @headerparam {string} authorization the authorization header verified by authenticated
  * @routeparam {string} id the product id
  * @bodyparam {string} name the product name
@@ -103,9 +103,9 @@ router.put("/:id", authenticated, hasPermission(permissions.MANAGE_PRODUCTS), as
 
 /**
  * @name DeleteProduct
- * @route {DELETE} /
- * @headerparam {string} authorization the authorization header verified by authenticated
+ * @route {DELETE} /api/v1/product/:id
  * @routeparam {string} id the product id
+ * @headerparam {string} authorization the authorization header verified by authenticated
  */
 router.delete("/:id", authenticated, hasPermission(permissions.MANAGE_PRODUCTS), async function(req, res){
     try{
@@ -122,7 +122,7 @@ router.delete("/:id", authenticated, hasPermission(permissions.MANAGE_PRODUCTS),
 
 /**
  * @name GetProduct
- * @route {GET} /:id
+ * @route {GET} /api/v1/product/:id
  * @routeparam {string} id the product id
  */
 router.get("/:id", async function(req, res){
@@ -137,7 +137,7 @@ router.get("/:id", async function(req, res){
 
 /**
  * @name GetProducts
- * @route {GET} /
+ * @route {GET} /api/v1/product
  * @queryparam {string} [q] String to search/filter products 
  * @queryparam {number} [skip=0] Skip param
  * @queryparam {number} [limit=20] limit param

@@ -28,7 +28,7 @@ if(argv.seed == true){
 /** using express json middleware */
 app.use(express.json());
 
-app.use("/", userController);
+app.use("/api/v1/user", userController);
 
 var port = process.env.PORT || '3000';
 

@@ -10,7 +10,7 @@ const productController = require("./lib/product.controller");
 /** using express json middleware */
 app.use(express.json());
 
-app.use("/", productController);
+app.use("/api/v1/product", productController);
 
 var port = process.env.PORT || '3001';
 
