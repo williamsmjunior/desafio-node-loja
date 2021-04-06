@@ -4,7 +4,7 @@
  */
 const mongoose = require("mongoose");
 var jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const crypto = require("crypto");
 const saltRounds = 10;
 
 const errorCodes = require("./errors");
@@ -95,7 +95,14 @@ class UserService {
      * @param {*} password 
      */
     async _encryptPassword(password){
-        return bcrypt.hash(password, saltRounds);
+        return new Promise((resolve, reject) => {
+            const salt = crypto.randomBytes(8).toString("hex")
+    
+            crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+                if (err) reject(err);
+                resolve(salt + ":" + derivedKey.toString('hex'))
+            });
+        });
     }
 
     /**
@@ -105,7 +112,13 @@ class UserService {
      * @param {*} hash 
      */
     async _PasswordMatch(password, hash){
-        return bcrypt.compare(password, hash);
+        return new Promise((resolve, reject) => {
+            const [salt, key] = hash.split(":")
+            crypto.scrypt(password, salt, 64, (err, derivedKey) => {
+                if (err) reject(err);
+                resolve(key == derivedKey.toString('hex'))
+            });
+        });
     }
 }
 

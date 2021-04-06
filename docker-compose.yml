@@ -1,0 +1,49 @@
+version: '3.6'
+services: 
+    user_service:
+        build: 
+            context: ./user-service
+            dockerfile: Dockerfile
+        container_name: user_service
+        ports: 
+            - 3000:3000
+        environment: 
+            PORT: 3000
+            JWT_SECRET: JWTSECRETS
+            MONGO_URI: mongodb://mongo_loja/userservice
+        networks:
+            - mongo_network
+        depends_on: 
+            - mongo_loja
+
+    product_service:
+        build: 
+            context: ./product-service
+            dockerfile: Dockerfile
+        container_name: product_service
+        ports: 
+            - 3001:3001
+        environment: 
+            PORT: 3001
+            JWT_SECRET: JWTSECRETS
+            MONGO_URI: mongodb://mongo_loja/productservice
+        networks:
+            - mongo_network
+        depends_on: 
+            - mongo_loja
+
+    mongo_loja:
+        image: mongo:4.4
+        command: ['--logpath', '/data/db/mongo.log']
+        restart: always
+        container_name: mongo_loja
+        volumes:
+            - ./data/db:/data/db
+        ports:
+            - 27017:27017
+        networks:
+            - mongo_network
+
+networks:
+    mongo_network:
+        driver: bridge
