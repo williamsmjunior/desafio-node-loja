@@ -30,3 +30,50 @@ Dentro de uma arquitetura de micro serviço precisamos de uma API para cadastro 
 	- Padrão de escrita do código
 	- Utilização de boas práticas
 
+### Pré requisitos
+	- docker
+	- docker-compose
+
+### Execução local
+Executar na raiz do projeto
+```
+$ docker-compose build
+$ docker-compose up
+```
+
+### Execução dos testes
+Inicie o container do mongodb
+Na primeira vez execute:
+
+```
+$ cd user-service
+$ export MONGO_URImongodb://localhost/userservice"
+$ npm run seed
+```
+Pare o servidor após aparecer o log de usuário criado.
+
+Execute "docker-compose up" para iniciar os servidores.
+
+Para executar os testes do user-service:
+
+```
+$ cd user-service
+$ npm run test
+```
+
+Para executar os testes do product-service:
+
+```
+$ cd product-service
+$ npm run test
+```
+
+### Para gerar documentação jsdoc
+Execute o comando dentro do projeto de cada servidor:
+
+```
+$ npm run jsdoc
+```
+
+Abra o arquivo docs/index.html no browser.
+A api REST estará documentada no módulo "controller"

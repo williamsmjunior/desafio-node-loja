@@ -32,6 +32,21 @@ services:
         depends_on: 
             - mongo_loja
 
+    api_gateway:
+        build: 
+            context: ./api-gateway
+            dockerfile: Dockerfile
+        container_name: api_gateway
+        ports: 
+            - 3002:3002
+        environment: 
+            PORT: 3002
+            PRODUCT_SERVICE_URL: http://product_service:3001/api/v1/product
+            USER_SERVICE_URL: http://user_service:3000/api/v1/user
+            
+        networks:
+            - mongo_network
+
     mongo_loja:
         image: mongo:4.4
         command: ['--logpath', '/data/db/mongo.log']
